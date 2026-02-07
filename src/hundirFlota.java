@@ -1,5 +1,15 @@
 import java.util.Scanner;
 
+/**
+ * Juego de hundir la flota por consola.
+ *
+ * El programa genera un tablero para la CPU, coloca los barcos de forma aleatoria y permite al usuario
+ * disparar indicando fila (letra) y columna (número) hasta agotar intentos o hundir todos los barcos.
+ *
+ *
+ * @author Ivan Ribes Moliner
+ */
+
 public class hundirFlota {
     static Scanner key = new Scanner(System.in);
 
@@ -12,6 +22,13 @@ public class hundirFlota {
     public static final String VERDE = "\u001B[32m";
     public static final String NARANJA = "\u001B[38;5;208m";
     //endregion
+
+    /**
+     * Punto de entrada del programa. Prepara la partida (dificultad, tamaño de tablero, barcos e intentos),
+     * inicializa los tableros y ejecuta el bucle principal de juego hasta victoria o derrota.
+     *
+     * @param args
+     */
     public static void main(String[] args) {
 
         System.out.println("[HUNDIR LA FLOTA- IVAN RIBÉS]\n");
@@ -97,6 +114,12 @@ public class hundirFlota {
 //endregion
     }
 //region METODOS CREAR PARTIDA
+
+    /**
+     * Rellena un tablero de caracteres con '_' para inicializarlo como tablero vacío.
+     *
+     * @param tablero matriz que representa el tablero a inicializar
+     */
     public static void crearTablero(char[][] tablero) {
 
         for (int i = 0; i < tablero.length; i++) {
@@ -105,6 +128,13 @@ public class hundirFlota {
             }
         }
     }
+
+    /**
+     * Rellena un tablero auxiliar numérico con -1.
+     * Se usa para almacenar información auxiliar (identificación de barcos por casilla).
+     *
+     * @param tablero matriz auxiliar a inicializar
+     */
 
     public static void crearTablero(int[][] tablero) {
 
@@ -115,11 +145,33 @@ public class hundirFlota {
         }
     }
 
+    /**
+     * Genera un índice aleatorio válido dentro de los límites del tablero.
+     * Se utiliza para obtener valores de fila o columna al colocar barcos.
+     *
+     * @param tableroCPU tablero de referencia para obtener el tamaño
+     * @return índice aleatorio entre 0 y (tableroCPU.length - 1)
+     */
     //llamar 2 veces, 1 fila, 1 columna
     public static int posRandom(char[][] tableroCPU) {
         return (int) (Math.random() * tableroCPU.length);
     }
 
+    /**
+     * Coloca los barcos de la CPU en el tablero, según la cantidad y longitud de cada tipo de barco.
+     *
+     * Para cada barco se selecciona una posición inicial aleatoria y una dirección válida (horizontal o vertical
+     * según el tipo), asegurando que las posiciones estén libres. Además, se rellena la matriz auxiliar
+     * {@code numeroBarco} con el identificador numérico del barco en cada casilla ocupada.
+     *
+     *
+     * @param tableroCPU   tablero de la CPU donde se colocan los barcos
+     * @param cantBarcos   cantidad de barcos por tipo
+     * @param letraBarco   letra que representa cada tipo de barco en el tablero
+     * @param longBarco    longitud (tamaño) de cada tipo de barco
+     * @param numeroBarco  matriz auxiliar que guarda el número/ID de barco por casilla ocupada
+     * @return identificador del último barco colocado
+     */
     public static int colocarBarcos(char[][] tableroCPU, int[] cantBarcos,
                                     char[] letraBarco, int[] longBarco, int[][] numeroBarco) {
         int fila = 0;
@@ -177,7 +229,20 @@ public class hundirFlota {
         }
         return numBarco;
     }
-
+    /**
+     * Calcula una dirección válida para colocar un barco desde una posición inicial.
+     *
+     * Devuelve 1 si es posible colocar el barco en dirección positiva (derecha o abajo),
+     * -1 si es posible colocarlo en dirección negativa (izquierda o arriba), o 0 si no es posible
+     * en ninguna dirección desde esa posición.
+     *
+     *
+     * @param longBarco longitud del barco a colocar
+     * @param fila posición inicial (fila)
+     * @param columna posición inicial (columna)
+     * @param tableroCPU tablero donde se comprueba la disponibilidad de casillas
+     * @return 1 si dirección positiva es válida, -1 si dirección negativa es válida, 0 si ninguna es válida
+     */
     public static int direccionBarco(int longBarco, int fila, int columna, char[][] tableroCPU) {
         boolean dirPositiva = true;
         boolean dirNegativa = true;
@@ -230,6 +295,14 @@ public class hundirFlota {
 //endregion
 
 //region METODOS JUGADA
+
+    /**
+     * Solicita al usuario una fila en formato letra (A, B, C...) y la convierte a índice numérico.
+     * Repite la petición hasta que la fila sea válida para el tamaño del tablero.
+     *
+     * @param tablero tablero de referencia para validar el rango
+     * @return índice de fila (0 a tablero.length - 1)
+     */
     public static int seleccionarFila(char[][] tablero) {
         char filaChar;
         int fila;
@@ -247,6 +320,13 @@ public class hundirFlota {
         return fila;
     }
 
+    /**
+     * Solicita al usuario una columna en formato numérico y la valida según el tamaño del tablero.
+     * Repite la petición hasta que la columna sea válida.
+     *
+     * @param tablero tablero de referencia para validar el rango
+     * @return índice de columna (0 a tablero.length - 1)
+     */
     public static int seleccionarColumna(char[][] tablero) {
         int columna;
 
@@ -261,6 +341,21 @@ public class hundirFlota {
         return columna;
     }
 
+    /**
+     * Procesa la jugada del usuario en una coordenada (fila, columna).
+     *
+     * - Si ya se ha disparado en esa casilla del tablero del usuario, vuelve a pedir coordenadas.
+     * - Si en el tablero de la CPU hay agua ('_'), marca 'A' en el tablero del usuario.
+     * - Si hay barco, marca 'X', actualiza la matriz auxiliar y calcula el estado del barco (tocado/hundido).
+     *
+     *
+     * @param tableroCPU   tablero real de la CPU (con barcos)
+     * @param tableroUser  tablero visible para el usuario (con disparos)
+     * @param fila         fila seleccionada por el usuario
+     * @param columna      columna seleccionada por el usuario
+     * @param tableroAux   matriz auxiliar con el ID de barco por casilla
+     * @param estadoBarco  array que guarda el estado de cada barco (por ID)
+     */
     public static void comprobarJugada(char[][] tableroCPU, char[][] tableroUser, int fila, int columna,
                                        int[][] tableroAux, int[] estadoBarco) {
         int numBarco;
@@ -292,8 +387,24 @@ public class hundirFlota {
         }
     }
 
+    /**
+     * Actualiza y muestra el estado de un barco (TOCADO/HUNDIDO) tras un impacto.
+     *
+     * Calcula cuántas partes del barco siguen presentes en {@code tablero}. Si no quedan partes,
+     * marca el barco como hundido (2); si quedan, lo marca como tocado (1).
+     *
+     *
+     * @param tablero   matriz auxiliar donde se identifican las partes restantes del barco
+     * @param estado    array de estados de barcos por ID (0: nada, 1: tocado, 2: hundido)
+     * @param fila      fila del último disparo (para comprobar horizontal)
+     * @param columna   columna del último disparo (para comprobar vertical)
+     * @param numBarco  identificador del barco impactado
+     * @param longBarco longitud del barco impactado
+     */
     public static void estadoBarcos (int[][] tablero, int[] estado, int fila, int columna,
                                      int numBarco, int longBarco){
+
+        //No necesario para lancha, solo mirar que tableroCPU[fila][columna] == '_'
         //0 nada - 1 tocado - 2 hundido
         int partesBarco = 0;
 
@@ -322,7 +433,15 @@ public class hundirFlota {
         }
     }
 
-    //No necesario para lancha, solo mirar que tableroCPU[fila][columna] == '_'
+    /**
+     * Comprueba si el jugador ha ganado.
+     *
+     * Se considera victoria cuando todos los barcos están en estado hundido (2).
+     *
+     *
+     * @param estados array con el estado de cada barco
+     * @return {@code true} si todos los barcos están hundidos, {@code false} en caso contrario
+     */
     public static boolean comprobarVictoria(int[] estados) {
         boolean victoria = true;
 
@@ -338,6 +457,13 @@ public class hundirFlota {
 
 //region METODOS SALIDA DATOS
 
+    /**
+     * Muestra por consola el tablero del usuario con formato de filas (letras) y columnas (números),
+     * aplicando colores ANSI según el contenido:
+     * '_' y 'A' en cian, 'X' en rojo.
+     *
+     * @param tableroUser tablero del usuario a mostrar
+     */
     public static void mostrarTablero(char[][] tableroUser) {
 
         System.out.printf("%n%s%23S%s%n%n",ROJO + NEGRITA,"[ TABLERO ]",RESET);
@@ -366,6 +492,16 @@ public class hundirFlota {
         }
     }
 
+    /**
+     * Muestra el tablero final en caso de derrota.
+     *
+     * Sustituye en el tablero del usuario todas las casillas no acertadas por el contenido real del tablero de la CPU,
+     * para revelar la posición de los barcos. Luego imprime el tablero con formato y colores ANSI.
+     *
+     *
+     * @param tableroUser tablero del usuario (se completa con información del tableroCPU)
+     * @param tableroCPU  tablero real de la CPU con la ubicación de los barcos
+     */
     public static void mostrarTableroDerrota(char[][] tableroUser, char[][] tableroCPU) {
 
         for (int i = 0; i < tableroUser.length; i++) {
@@ -403,6 +539,12 @@ public class hundirFlota {
     }
 
     //no hace falta en la ejecucion, solo en test
+    /**
+     * Muestra por consola un tablero auxiliar de enteros.
+     * Se utiliza principalmente para depuración o pruebas.
+     *
+     * @param tablero matriz numérica a mostrar
+     */
     public static void mostrarTablero(int[][] tablero) {
 
         System.out.println("[TABLERO]");
@@ -423,6 +565,13 @@ public class hundirFlota {
         }
     }
 
+    /**
+     * Muestra por consola el número de rondas restantes con un color que varía según el porcentaje
+     * de intentos restantes (verde, amarillo, naranja o rojo). Si queda una ronda, muestra "ULTIMA RONDA!".
+     *
+     * @param ronda rondas restantes en ese momento
+     * @param intentos número total de intentos iniciales
+     */
     public static void mostrarRondas(int ronda, int intentos) {
         double porcentaje = (double) ronda / intentos;
 
@@ -442,6 +591,13 @@ public class hundirFlota {
 //endregion
 
 //region METODOS SELECCIONAR PARAMETROS
+
+    /**
+     * Muestra un menú de dificultad y solicita una opción válida al usuario.
+     * Las opciones disponibles son: FACIL, MEDIO, DIFICIL y PERSONALIZADO.
+     *
+     * @return dificultad elegida en mayúsculas
+     */
     public static String seleccionaDificultad() {
         String dificultad;
 
@@ -474,6 +630,16 @@ public class hundirFlota {
         return dificultad;
     }
 
+    /**
+     * Establece la cantidad de barcos por tipo según la dificultad elegida.
+     *
+     * Para dificultad PERSONALIZADO, solicita al usuario el número de barcos de cada tipo.
+     *
+     *
+     * @param dificultad dificultad seleccionada
+     * @param cantBarcos array donde se guarda la cantidad de barcos por tipo
+     * @param nombreBarco nombres de cada tipo de barco (para mostrar al usuario en PERSONALIZADO)
+     */
     public static void cantBarcos(String dificultad, int[] cantBarcos, String[] nombreBarco) {
 
         switch (dificultad) {
@@ -507,6 +673,17 @@ public class hundirFlota {
         }
     }
 
+    /**
+     * Devuelve el número de intentos según la dificultad.
+     *
+     * En PERSONALIZADO, solicita al usuario el número de intentos y valida que no supere el máximo
+     * (tamaño del tablero al cuadrado).
+     *
+     *
+     * @param dificultad dificultad seleccionada
+     * @param tablero tablero de referencia para calcular el máximo de intentos posible
+     * @return número de intentos para la partida
+     */
     public static int cantIntentos(String dificultad, char[][] tablero) {
         int maxIntentos = tablero.length* tablero.length;
         int intentos = 0;
@@ -534,5 +711,3 @@ public class hundirFlota {
     }
 //endregion
 }
-
-//FALTA AVISO AL REPETIR CASILLA
