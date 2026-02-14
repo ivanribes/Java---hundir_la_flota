@@ -32,7 +32,7 @@ El objetivo del juego es localizar y hundir todos los barcos del tablero antes d
 ---
 
 ## 🌐 Documentación online (Javadoc)
-https://ivanribes.github.io/Java---hundir_la_flota/package-summary.html
+👉 [Ver JavaDoc completo](https://ivanribes.github.io/Java---hundir_la_flota/)
 
 ---
 
