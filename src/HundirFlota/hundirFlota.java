@@ -38,8 +38,6 @@ public class hundirFlota {
                 %s%s                 I V A N   R I B É S%s
                 %s%s====================================================%s
                 
-                %sPrepárate para la batalla naval...%s
-                %s¡Que comience el combate!%s
                 
                 """,
                 BLANCO, NEGRITA, RESET,
@@ -77,12 +75,14 @@ public class hundirFlota {
         dificultad = seleccionaDificultad();
         if (dificultad == 4) {
             do {
-                System.out.print("Introduce el tamaño del tablero(Max 26): ");
+                System.out.printf("%s%s» Introduce el tamaño del tablero(max 26):%s ", BLANCO, NEGRITA, RESET);
                 tamTablero = key.nextInt();
                 if (tamTablero > 26) {
-                    System.out.println("Tamaño maximo 26.");
+                    System.out.printf("%s%s✖ [ERROR] Tamaño maximo 26!%s%n", ROJO, NEGRITA, RESET);
+                } else if (tamTablero < 3) {
+                    System.out.printf("%s%s✖ [ERROR] Tamaño minimo 3!%s%n", ROJO, NEGRITA, RESET);
                 }
-            } while (tamTablero > 26);
+            } while (tamTablero > 26 || tamTablero < 3);
         }
 
         tableroCPU = new char[tamTablero][tamTablero];
@@ -95,11 +95,11 @@ public class hundirFlota {
 
         if (dificultad == 4) {
             estadoBarcos = new int[colocarBarcosPersonalizado(tableroCPU, longBarcos, letraBarco,
-                    numeroBarco, barcos, cantBarcos) + 1];
+                    numeroBarco, barcos, cantBarcos)];
         } else {
             cantBarcos(dificultad, cantBarcos, barcos, tableroCPU, longBarcos);
             estadoBarcos = new int[recorrerBarcos(tableroCPU, cantBarcos, letraBarco,
-                    longBarcos, numeroBarco, barcos) + 1];
+                    longBarcos, numeroBarco, barcos)];
         }
 
         minIntentos = contarMinIntentos(tableroCPU);
@@ -108,8 +108,12 @@ public class hundirFlota {
 
         //region PARTIDA
         mostrarTablero(tableroUser);
-        //mostrarTablero(numeroBarco);
-        //mostrarTablero(tableroCPU);
+        mostrarTablero(numeroBarco);
+        mostrarTablero(tableroCPU);
+
+        if (estadoBarcos.length == 0) {
+            victoria = true;
+        }
 
         for (int i = intentos; i > 0 && !victoria; i--) {
 
@@ -342,11 +346,11 @@ public class hundirFlota {
                 maxBarcos = cantBarcosPosible(tableroCPU, i, longBarcos);
             }
             do {
-                System.out.printf("Introduce el numero de %S (max %d):"
-                        , barcos[i], maxBarcos);
+                System.out.printf("%s%s» Introduce el numero de %S (max %d):%s ", BLANCO, NEGRITA,
+                        barcos[i],maxBarcos,RESET);
                 cantBarcos[i] = key.nextInt();
                 if (cantBarcos[i] > maxBarcos || cantBarcos[i] < 0) {
-                    System.out.println("Valor introducido no valido!");
+                    System.out.printf("%s%s✖ [ERROR] Cantidad no valida!%s%n", ROJO, NEGRITA, RESET);
                 }
 
             } while (cantBarcos[i] > maxBarcos || cantBarcos[i] < 0);
@@ -717,19 +721,21 @@ public class hundirFlota {
      */
     public static void mostrarTablero(int[][] tablero) {
 
-        System.out.println("[TABLERO]");
+        System.out.printf("%n%s%23S%s%n%n", ROJO + NEGRITA, "[ TABLERO ]", RESET);
 
-        for (int i = 0; i <= tablero.length; i++) {
-            if (i == 0) {
+        for (int i = -1; i < tablero.length; i++) {
+            if (i == -1) {
                 System.out.printf("%3c", ' ');
             } else {
-                System.out.printf("%3d", i);
+                System.out.printf("%s%s%3d%s", BLANCO, NEGRITA, i, RESET);
             }
         }
+        System.out.println();
 
         for (int i = 0; i < tablero.length; i++) {
+            System.out.printf("%s%s%3c%s", BLANCO, NEGRITA, (char) ('A' + i), RESET);
             for (int j = 0; j < tablero.length; j++) {
-                System.out.printf("%3d", tablero[i][j]);
+                System.out.printf("%3d",tablero[i][j]);
             }
             System.out.println();
         }
@@ -869,12 +875,14 @@ public class hundirFlota {
                 break;
             case 4:
                 do {
-                    System.out.print("Introduce el numero de intentos: ");
+                    System.out.printf("%s%s» Introduce el numero de intentos:%s ", BLANCO, NEGRITA, RESET);
                     intentos = key.nextInt();
                     if (intentos > maxIntentos) {
-                        System.out.println("El maximo de intentos es " + maxIntentos + "!");
+                        System.out.printf("%s%s✖ [ERROR] El maximo de intentos es %d %s%n",
+                                ROJO, NEGRITA,maxIntentos ,RESET);
                     } else if (intentos < minIntentos) {
-                        System.out.println("El minimo de intentos es " + minIntentos + "!");
+                        System.out.printf("%s%s✖ [ERROR] El minimo de intentos es %d %s%n",
+                                ROJO, NEGRITA,minIntentos ,RESET);
                     }
                 } while (intentos > maxIntentos || minIntentos > intentos);
                 break;
